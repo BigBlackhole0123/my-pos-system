@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Hole POS - ระบบขายหน้าร้านออนไลน์</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&family=Prompt:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #F7F4ED;
+            --secondary: #E8E2D6;
+            --accent: #A68B5E;
+            --light: #FDFBF7;
+            --dark: #333333;
+            --success: #8AA37B;
+            --warning: #D4A86A;
+            --danger: #C1666B;
+            --border: #D9D0C1;
+            --text: #4A453E;
+        }
+        
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            transition: all 0.8s ease;
+        }
+        
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+        }
+        
+        .cat-icon {
+            font-size: 8rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .app-title {
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+        
+        .btn-start {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(166, 139, 94, 0.2);
+        }
+        
+        .btn-start:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(166, 139, 94, 0.3);
+            background: #8F7656;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .navbar-brand {
+            font-family: 'Prompt', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+        
+        .cat-icon-nav {
+            color: var(--accent);
+            font-size: 1.8rem;
+            margin-right: 10px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            height: 100%;
+            position: relative;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            border-color: var(--accent);
+        }
+        
+        .product-img-container {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+            background: var(--light);
+        }
+        
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+        
+        .product-img-edit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-card:hover .product-img-edit {
+            opacity: 1;
+        }
+        
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            z-index: 10;
+            background: white;
+            border: 1px solid var(--border);
+        }
+        
+        .stock-high {
+            color: var(--success);
+        }
+        
+        .stock-medium {
+            color: var(--warning);
+        }
+        
+        .stock-low {
+            color: var(--danger);
+        }
+        
+        .stock-out {
+            color: var(--danger);
+            background: rgba(193, 102, 107, 0.1);
+        }
+        
+        .product-title {
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .product-price {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+        
+        .btn-add-cart {
+            background: white;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-add-cart:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-add-cart:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border: 1px solid var(--border);
+        }
+        
+        .cart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            height: calc(100vh - 150px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        .cart-header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .cart-title {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+        
+        .cart-item {
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+        }
+        
+        .btn-quantity {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: white;
+            border: 1px solid var(--border);
+        }
+        
+        .item-quantity {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .btn-remove {
+            color: var(--danger);
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+        }
+        
+        .summary-row {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        .total-row {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--accent);
+            padding: 15px 0;
+        }
+        
+        .btn-checkout {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: 500;
+            font-size: 1.2rem;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-checkout:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(166, 139, 94, 0.2);
+            background: #8F7656;
+        }
+        
+        .category-filter {
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 50px;
+            padding: 5px;
+            border: 1px solid var(--border);
+        }
+        
+        .category-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            padding: 8px 15px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn.active, .category-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .search-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 10px 20px;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+        
+        .search-box:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(166, 139, 94, 0.1);
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            transform: translateX(200%);
+            transition: transform 0.5s ease;
+        }
+        
+        .floating-notification.show {
+            transform: translateX(0);
+        }
+        
+        .floating-notification.warning {
+            background: var(--warning);
+        }
+        
+        .floating-notification.danger {
+            background: var(--danger);
+        }
+        
+        .empty-cart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            opacity: 0.5;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .empty-cart i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .payment-modal .modal-content {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        
+        .payment-option {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .payment-option:hover, .payment-option.active {
+            border-color: var(--accent);
+            background: rgba(166, 139, 94, 0.05);
+        }
+        
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+        
+        .receipt {
+            background: white;
+            color: var(--text);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            border: 1px solid var(--border);
+        }
+        
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .receipt-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .receipt-total {
+            border-top: 2px dashed var(--border);
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(0, 0, 0, 0.5);
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        
+        .stock-management {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .stock-header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stock-title {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+        
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .stock-table th {
+            background: var(--light);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .stock-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .stock-table tr:hover {
+            background: var(--light);
+        }
+        
+        .stock-input {
+            width: 80px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: var(--text);
+            text-align: center;
+        }
+        
+        .btn-stock {
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin: 0 2px;
+            border: 1px solid var(--border);
+            background: white;
+        }
+        
+        .btn-save {
+            background: var(--success);
+            color: white;
+            border: none;
+        }
+        
+        .btn-save:hover {
+            background: #798F6A;
+        }
+        
+        .btn-reset {
+            background: var(--warning);
+            color: white;
+            border: none;
+        }
+        
+        .btn-reset:hover {
+            background: #C2954F;
+        }
+        
+        .nav-tabs .nav-link {
+            color: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 0;
+            padding: 12px 20px;
+            background: transparent;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--accent);
+            border-bottom: 3px solid var(--accent);
+            background: transparent;
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+        
+        .online-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--success);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+        
+        .online-status.offline {
+            background: var(--danger);
+        }
+        
+        .online-status i {
+            margin-right: 5px;
+        }
+        
+        .sync-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-left: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .hardware-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .hardware-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .hardware-icon {
+            font-size: 2rem;
+            width: 60px;
+            color: var(--accent);
+            text-align: center;
+        }
+        
+        .hardware-info {
+            flex-grow: 1;
+        }
+        
+        .hardware-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .status-connected {
+            background: var(--success);
+        }
+        
+        .status-disconnected {
+            background: var(--danger);
+        }
+        
+        .customer-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .customer-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--accent);
+        }
+        
+        .customer-points {
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+        
+        .settings-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        .settings-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .settings-title i {
+            margin-right: 10px;
+        }
+        
+        .image-upload-container {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--light);
+        }
+        
+        .image-upload-container:hover {
+            border-color: var(--accent);
+            background: rgba(166, 139, 94, 0.05);
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Online Status Indicator -->
+    <div class="online-status" id="onlineStatus">
+        <i class="fas fa-wifi"></i> ออนไลน์ <span class="sync-status"></span>
+    </div>
+    
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="cat-icon">
+            <i class="fas fa-cat"></i>
+        </div>
+        <h1 class="app-title">BLACK HOLE POS</h1>
+        <p class="lead mb-4">ระบบขายหน้าร้านออนไลน์แบบครบวงจร</p>
+        <button class="btn btn-lg btn-start" id="startBtn">
+            <i class="fas fa-play me-2"></i>เริ่มใช้งาน
+        </button>
+    </div>
+    
+    <!-- Login Screen -->
+    <div class="container" id="loginScreen" style="display: none;">
+        <div class="login-container">
+            <div class="text-center mb-4">
+                <i class="fas fa-cat fa-3x mb-3" style="color: var(--accent);"></i>
+                <h3 class="app-title" style="font-size: 2rem;">เข้าสู่ระบบ</h3>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">ชื่อผู้ใช้</label>
+                <input type="text" class="form-control" id="username" placeholder="กรอกชื่อผู้ใช้">
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">รหัสผ่าน</label>
+                <input type="password" class="form-control" id="password" placeholder="กรอกรหัสผ่าน">
+            </div>
+            
+            <button class="btn btn-lg w-100" style="background: var(--accent); color: white;" id="loginBtn">
+                <i class="fas fa-sign-in-alt me-2"></i>เข้าสู่ระบบ
+            </button>
+            
+            <div class="mt-3 text-center">
+                <small>ยังไม่มีบัญชี? <a href="#" id="registerLink">สมัครสมาชิก</a></small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- POS System -->
+    <div class="app-container" id="posSystem" style="display: none;">
+        <!-- Navbar -->
+        <nav class="navbar navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-cat cat-icon-nav"></i>
+                    BLACK HOLE POS
+                </a>
+                <div class="d-flex align-items-center">
+                    <span class="me-3"><i class="fas fa-user me-1"></i> <span id="currentUser">admin</span> (<span id="userRole">เจ้าของร้าน</span>)</span>
+                    <button class="btn btn-outline-dark me-2" id="syncBtn">
+                        <i class="fas fa-sync-alt me-1"></i> ซิงค์ข้อมูล
+                    </button>
+                    <button class="btn btn-outline-dark" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt me-1"></i> ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pos-tab" data-bs-toggle="tab" data-bs-target="#pos" type="button" role="tab">ขายสินค้า</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="stock-tab" data-bs-toggle="tab" data-bs-target="#stock" type="button" role="tab">สินค้าและสต๊อก</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="customers-tab" data-bs-toggle="tab" data-bs-target="#customers" type="button" role="tab">สมาชิก (10,250)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">รายงานการขาย</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="staff-tab" data-bs-toggle="tab" data-bs-target="#staff" type="button" role="tab">พนักงาน (5)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardware" type="button" role="tab">ตั้งค่าฮาร์ดแวร์</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">การตั้งค่า</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="myTabContent">
+            <!-- POS Tab -->
+            <div class="tab-pane fade show active" id="pos" role="tabpanel">
+                <div class="row">
+                    <!-- Product List -->
+                    <div class="col-lg-8">
+                        <div class="d-flex category-filter mb-3">
+                            <button class="category-btn active">ทั้งหมด</button>
+                            <button class="category-btn">เครื่องดื่ม</button>
+                            <button class="category-btn">อาหาร</button>
+                            <button class="category-btn">ขนม</button>
+                            <button class="category-btn">อื่นๆ</button>
+                        </div>
+                        
+                        <div class="input-group mb-4">
+                            <span class="input-group-text bg-transparent border-end-0">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control search-box border-start-0" placeholder="ค้นหาสินค้าหรือสแกนบาร์โค้ด..." id="productSearch">
+                        </div>
+                        
+                        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4" id="productGrid">
+                            <!-- Products will be loaded here dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Shopping Cart -->
+                    <div class="col-lg-4">
+                        <div class="cart-container">
+                            <div class="cart-header d-flex justify-content-between align-items-center">
+                                <h3 class="cart-title"><i class="fas fa-shopping-cart me-2"></i>ตะกร้าสินค้า</h3>
+                                <button class="btn btn-sm" style="background: var(--accent); color: white;" id="openDrawerBtn">
+                                    <i class="fas fa-cash-register me-1"></i> เปิดลิ้นชัก
+                                </button>
+                            </div>
+                            
+                            <div class="cart-items flex-grow-1 overflow-auto" id="cartItems">
+                                <!-- Cart items will be loaded here dynamically -->
+                            </div>
+                            
+                            <!-- Order Summary -->
+                            <div class="cart-summary mt-3">
+                                <div class="d-flex justify-content-between summary-row">
+                                    <div>ราคารวม</div>
+                                    <div id="subtotal">0 ฿</div>
+                                </div>
+                                <div class="d-flex justify-content-between summary-row">
+                                    <div>ส่วนลด (0%)</div>
+                                    <div id="discount">0 ฿</div>
+                                </div>
+                                <div class="d-flex justify-content-between summary-row">
+                                    <div>ภาษี (7%)</div>
+                                    <div id="tax">0 ฿</div>
+                                </div>
+                                <div class="d-flex justify-content-between total-row">
+                                    <div>รวมสุทธิ</div>
+                                    <div id="total">0 ฿</div>
+                                </div>
+                                
+                                <button class="btn btn-lg btn-checkout w-100" id="checkoutBtn">
+                                    <i class="fas fa-cash-register me-2"></i>ชำระเงิน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stock Management Tab -->
+            <div class="tab-pane fade" id="stock" role="tabpanel">
+                <div class="stock-management">
+                    <div class="stock-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stock-title"><i class="fas fa-boxes me-2"></i>จัดการสินค้าและสต๊อก</h3>
+                            <p class="mb-0">แก้ไขจำนวนสต๊อกสินค้าและข้อมูลสินค้า</p>
+                        </div>
+                        <button class="btn" style="background: var(--accent); color: white;" id="addProductBtn">
+                            <i class="fas fa-plus me-1"></i> เพิ่มสินค้าใหม่
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <div class="d-flex">
+                            <input type="text" class="form-control search-box me-2" placeholder="ค้นหาสินค้า..." id="stockSearch">
+                            <button class="btn btn-outline-dark">
+                                <i class="fas fa-filter me-1"></i> หมวดหมู่
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th>รหัสสินค้า</th>
+                                    <th>ชื่อสินค้า</th>
+                                    <th>รูปภาพ</th>
+                                    <th>หมวดหมู่</th>
+                                    <th>ราคา (฿)</th>
+                                    <th>สต๊อกปัจจุบัน</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTableBody">
+                                <!-- Stock items will be loaded here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customers Tab -->
+            <div class="tab-pane fade" id="customers" role="tabpanel">
+                <div class="stock-management">
+                    <div class="stock-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stock-title"><i class="fas fa-users me-2"></i>ระบบสมาชิก</h3>
+                            <p class="mb-0">สมาชิกทั้งหมด 10,250 คน</p>
+                        </div>
+                        <button class="btn" style="background: var(--accent); color: white;" id="addCustomerBtn">
+                            <i class="fas fa-plus me-1"></i> เพิ่มสมาชิกใหม่
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <div class="d-flex w-100">
+                            <input type="text" class="form-control search-box me-2" placeholder="ค้นหาสมาชิก..." id="customerSearch">
+                            <button class="btn btn-outline-dark">
+                                <i class="fas fa-filter me-1"></i> กลุ่มสมาชิก
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="customerGrid">
+                        <!-- Customer cards will be loaded here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports Tab -->
+            <div class="tab-pane fade" id="reports" role="tabpanel">
+                <div class="stock-management">
+                    <div class="stock-header">
+                        <h3 class="stock-title"><i class="fas fa-chart-bar me-2"></i>รายงานการขาย</h3>
+                        <p class="mb-0">ดูรายงานการขายและสถิติการใช้งาน</p>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h2 class="card-title" style="color: var(--accent);">12,450 ฿</h2>
+                                    <p class="card-text">ยอดขายวันนี้</p>
+                                    <div class="mt-3">
+                                        <i class="fas fa-coins fa-2x" style="color: var(--accent);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h2 class="card-title" style="color: var(--accent);">42</h2>
+                                    <p class="card-text">รายการขายวันนี้</p>
+                                    <div class="mt-3">
+                                        <i class="fas fa-receipt fa-2x" style="color: var(--accent);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h2 class="card-title" style="color: var(--accent);">8</h2>
+                                    <p class="card-text">สินค้าขายดี</p>
+                                    <div class="mt-3">
+                                        <i class="fas fa-star fa-2x" style="color: var(--accent);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>สถิติการขาย 7 วันล่าสุด</h5>
+                            <button class="btn" style="background: var(--accent); color: white;" id="emailReportBtn">
+                                <i class="fas fa-envelope me-1"></i> ส่งรายงานทางอีเมล
+                            </button>
+                        </div>
+                        <div style="height: 300px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                            <!-- Sales chart would go here -->
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line fa-3x mb-3" style="color: var(--accent); opacity: 0.3;"></i>
+                                    <p>กราฟแสดงสถิติการขาย 7 วันล่าสุด</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Staff Management Tab -->
+            <div class="tab-pane fade" id="staff" role="tabpanel">
+                <div class="stock-management">
+                    <div class="stock-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="stock-title"><i class="fas fa-user-tie me-2"></i>จัดการพนักงาน</h3>
+                            <p class="mb-0">พนักงานทั้งหมด 5 คน</p>
+                        </div>
+                        <button class="btn" style="background: var(--accent); color: white;" id="addStaffBtn">
+                            <i class="fas fa-plus me-1"></i> เพิ่มพนักงาน
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <div class="d-flex w-100">
+                            <input type="text" class="form-control search-box me-2" placeholder="ค้นหาพนักงาน..." id="staffSearch">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อพนักงาน</th>
+                                    <th>อีเมล</th>
+                                    <th>บทบาท</th>
+                                    <th>สถานะ</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTableBody">
+                                <tr>
+                                    <td>สมชาย ใจดี</td>
+                                    <td>somchai@blackhole.com</td>
+                                    <td>เจ้าของร้าน</td>
+                                    <td><span class="badge bg-success">ใช้งาน</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-stock btn-reset">
+                                            <i class="fas fa-edit"></i> แก้ไข
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>สมหญิง เก่งดี</td>
+                                    <td>somying@blackhole.com</td>
+                                    <td>ผู้จัดการ</td>
+                                    <td><span class="badge bg-success">ใช้งาน</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-stock btn-reset">
+                                            <i class="fas fa-edit"></i> แก้ไข
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>สมคิด ขยันดี</td>
+                                    <td>somkid@blackhole.com</td>
+                                    <td>พนักงานขาย</td>
+                                    <td><span class="badge bg-success">ใช้งาน</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-stock btn-reset">
+                                            <i class="fas fa-edit"></i> แก้ไข
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>สมหมาย ใจเย็น</td>
+                                    <td>sommai@blackhole.com</td>
+                                    <td>พนักงานขาย</td>
+                                    <td><span class="badge bg-success">ใช้งาน</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-stock btn-reset">
+                                            <i class="fas fa-edit"></i> แก้ไข
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>สมศรี น่ารัก</td>
+                                    <td>somsri@blackhole.com</td>
+                                    <td>พนักงานขาย</td>
+                                    <td><span class="badge bg-success">ใช้งาน</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-stock btn-reset">
+                                            <i class="fas fa-edit"></i> แก้ไข
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hardware Settings Tab -->
+            <div class="tab-pane fade" id="hardware" role="tabpanel">
+                <div class="hardware-panel">
+                    <div class="stock-header">
+                        <h3 class="stock-title"><i class="fas fa-plug me-2"></i>ตั้งค่าฮาร์ดแวร์</h3>
+                        <p class="mb-0">เชื่อมต่อและตั้งค่าอุปกรณ์ภายนอก</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="hardware-item">
+                            <div class="hardware-icon">
+                                <i class="fas fa-barcode"></i>
+                            </div>
+                            <div class="hardware-info">
+                                <h5>เครื่องสแกนบาร์โค้ด</h5>
+                                <p class="mb-0">USB Barcode Scanner - Honeywell Voyager 1200g</p>
+                            </div>
+                            <div>
+                                <span class="status-connected hardware-status"></span>
+                                <span>เชื่อมต่อแล้ว</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hardware-item">
+                            <div class="hardware-icon">
+                                <i class="fas fa-cash-register"></i>
+                            </div>
+                            <div class="hardware-info">
+                                <h5>ลิ้นชักเก็บเงิน</h5>
+                                <p class="mb-0">Star TSP143IV USB Cash Drawer</p>
+                            </div>
+                            <div>
+                                <span class="status-connected hardware-status"></span>
+                                <span>เชื่อมต่อแล้ว</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hardware-item">
+                            <div class="hardware-icon">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div class="hardware-info">
+                                <h5>เครื่องพิมพ์ใบเสร็จ</h5>
+                                <p class="mb-0">Epson TM-T88V Thermal Printer</p>
+                            </div>
+                            <div>
+                                <span class="status-disconnected hardware-status"></span>
+                                <span>ยังไม่ได้เชื่อมต่อ</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hardware-item">
+                            <div class="hardware-icon">
+                                <i class="fas fa-desktop"></i>
+                            </div>
+                            <div class="hardware-info">
+                                <h5>จอแสดงผลลูกค้า</h5>
+                                <p class="mb-0">Samsung 24-inch Customer Display</p>
+                            </div>
+                            <div>
+                                <span class="status-disconnected hardware-status"></span>
+                                <span>ยังไม่ได้เชื่อมต่อ</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5 class="mb-3">ตั้งค่าขั้นสูง</h5>
+                        <div class="mb-3">
+                            <label class="form-label">รหัสเปิดลิ้นชัก (ESC/POS)</label>
+                            <input type="text" class="form-control" value="27,112,0,25,250">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ความเร็วการพิมพ์ (DPI)</label>
+                            <input type="range" class="form-range" min="100" max="300" value="203">
+                        </div>
+                        <button class="btn" style="background: var(--accent); color: white;">
+                            <i class="fas fa-save me-1"></i> บันทึกการตั้งค่า
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="settings" role="tabpanel">
+                <div class="settings-card">
+                    <h5 class="settings-title"><i class="fas fa-image"></i> การจัดการรูปภาพ</h5>
+                    <div class="image-upload-container" id="imageUploadContainer">
+                        <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: var(--accent);"></i>
+                        <p>ลากและวางไฟล์รูปภาพที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+                        <p class="text-muted">รองรับไฟล์ JPG, PNG ขนาดสูงสุด 5MB</p>
+                        <input type="file" id="imageUpload" style="display: none;" accept="image/*">
+                        <img id="imagePreview" class="image-preview">
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ขนาดรูปภาพ (กว้าง)</label>
+                            <input type="range" class="form-range" min="100" max="800" value="400" id="imageWidth">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">คุณภาพรูปภาพ</label>
+                            <input type="range" class="form-range" min="50" max="100" value="85" id="imageQuality">
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-outline-secondary me-2">ยกเลิก</button>
+                        <button class="btn" style="background: var(--accent); color: white;">
+                            <i class="fas fa-save me-1"></i> บันทึกรูปภาพ
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h5 class="settings-title"><i class="fas fa-envelope"></i> การส่งรายงานอัตโนมัติ</h5>
+                    <div class="mb-3">
+                        <label class="form-label">อีเมลที่ต้องการส่งรายงาน</label>
+                        <input type="email" class="form-control" value="owner@blackhole.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ความถี่ในการส่งรายงาน</label>
+                        <select class="form-select">
+                            <option>ทุกวัน</option>
+                            <option selected>ทุกสัปดาห์</option>
+                            <option>ทุกสิ้นเดือน</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="autoReportSwitch" checked>
+                        <label class="form-check-label" for="autoReportSwitch">ส่งรายงานอัตโนมัติ</label>
+                    </div>
+                    <button class="btn" style="background: var(--accent); color: white;">
+                        <i class="fas fa-save me-1"></i> บันทึกการตั้งค่า
+                    </button>
+                </div>
+                
+                <div class="settings-card">
+                    <h5 class="settings-title"><i class="fas fa-shield-alt"></i> การตั้งค่าความปลอดภัย</h5>
+                    <div class="mb-3">
+                        <label class="form-label">เปลี่ยนรหัสผ่าน</label>
+                        <input type="password" class="form-control" placeholder="รหัสผ่านใหม่">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ยืนยันรหัสผ่าน</label>
+                        <input type="password" class="form-control" placeholder="ยืนยันรหัสผ่านใหม่">
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="autoLogoutSwitch" checked>
+                        <label class="form-check-label" for="autoLogoutSwitch">ออกจากระบบอัตโนมัติเมื่อไม่ใช้งาน (15 นาที)</label>
+                    </div>
+                    <button class="btn" style="background: var(--accent); color: white;">
+                        <i class="fas fa-save me-1"></i> อัปเดตรหัสผ่าน
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>BLACK HOLE POS SYSTEM • © 2023 • ออนไลน์เวอร์ชัน 2.0</p>
+        </div>
+    </div>
+    
+    <!-- Payment Modal -->
+    <div class="modal fade payment-modal" id="paymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-cash-register me-2"></i>ชำระเงิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">เลือกวิธีการชำระเงิน</h6>
+                            
+                            <div class="payment-option active">
+                                <div class="payment-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <h5>เงินสด</h5>
+                                <p class="mb-0">ชำระด้วยเงินสด</p>
+                            </div>
+                            
+                            <div class="payment-option">
+                                <div class="payment-icon">
+                                    <i class="fas fa-credit-card"></i>
+                                </div>
+                                <h5>บัตรเครดิต/เดบิต</h5>
+                                <p class="mb-0">ชำระด้วยบัตร</p>
+                            </div>
+                            
+                            <div class="payment-option">
+                                <div class="payment-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <h5>Mobile Banking</h5>
+                                <p class="mb-0">ชำระผ่านแอพธนาคาร</p>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6>รับเงินทอน</h6>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">฿</span>
+                                    <input type="number" class="form-control" placeholder="จำนวนเงินที่รับจากลูกค้า" id="cashReceived" value="0">
+                                </div>
+                                <div class="alert alert-light border">
+                                    <i class="fas fa-coins me-2"></i> เงินทอน: <strong id="changeAmount">0 ฿</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="mb-3">ใบเสร็จรับเงิน</h6>
+                            <div class="receipt" id="receiptPreview">
+                                <!-- Receipt content will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn" style="background: var(--accent); color: white;" id="completePayment">
+                        <i class="fas fa-check-circle me-2"></i>ยืนยันการชำระเงิน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Notification -->
+    <div class="floating-notification" id="notification">
+        <i class="fas fa-check-circle me-2"></i> <span>เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว!</span>
+    </div>
+    
+    <!-- Bootstrap & jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sample product data with stock
+        const products = [
+            { id: 1, name: "กาแฟลาเต้", price: 55, category: "เครื่องดื่ม", stock: 15, image: "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 2, name: "โดนัทช็อกโกแลต", price: 45, category: "ขนม", stock: 8, image: "https://images.unsplash.com/photo-1559715745-e1b33a271c8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 3, name: "แซนด์วิชทูน่า", price: 65, category: "อาหาร", stock: 12, image: "https://images.unsplash.com/photo-1554119921-6c2867ad469e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 4, name: "แพนเค้กเบอร์รี่", price: 85, category: "ขนม", stock: 5, image: "https://images.unsplash.com/photo-1610878180933-123728745d22?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 5, name: "สมูทตี้ผลไม้รวม", price: 75, category: "เครื่องดื่ม", stock: 10, image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 6, name: "เค้กช็อกโกแลต", price: 95, category: "ขนม", stock: 3, image: "https://images.unsplash.com/photo-1584184087922-bab6debd38b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 7, name: "เบอร์เกอร์ชีส", price: 120, category: "อาหาร", stock: 20, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" },
+            { id: 8, name: "พิซซ่าฮาวายเอี้ยน", price: 180, category: "อาหาร", stock: 7, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" }
+        ];
+        
+        // Shopping cart
+        let cart = [];
+        
+        // Start button functionality
+        document.getElementById('startBtn').addEventListener('click', function() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const loginScreen = document.getElementById('loginScreen');
+            
+            welcomeScreen.classList.add('hidden');
+            
+            setTimeout(function() {
+                loginScreen.style.display = 'block';
+            }, 800);
+        });
+        
+        // Login functionality
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('posSystem').style.display = 'block';
+                document.getElementById('currentUser').textContent = username;
+                
+                renderProducts();
+                renderStockTable();
+                showNotification("เข้าสู่ระบบสำเร็จ");
+            } else {
+                showNotification("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน", "danger");
+            }
+        });
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            document.getElementById('posSystem').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            showNotification("ออกจากระบบสำเร็จ", "warning");
+        });
+        
+        // Render products to the grid
+        function renderProducts() {
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = '';
+            
+            products.forEach(product => {
+                // Determine stock badge
+                let stockClass, stockText;
+                if (product.stock > 10) {
+                    stockClass = "stock-high";
+                    stockText = `สต๊อก: ${product.stock}`;
+                } else if (product.stock > 5) {
+                    stockClass = "stock-medium";
+                    stockText = `เหลือ: ${product.stock}`;
+                } else if (product.stock > 0) {
+                    stockClass = "stock-low";
+                    stockText = `เหลือน้อย: ${product.stock}`;
+                } else {
+                    stockClass = "stock-out";
+                    stockText = "สินค้าหมด";
+                }
+                
+                const productCard = `
+                    <div class="col">
+                        <div class="product-card h-100">
+                            <div class="stock-badge ${stockClass}">${stockText}</div>
+                            <div class="product-img-container">
+                                <img src="${product.image}" class="product-img" alt="${product.name}">
+                                <div class="product-img-edit" onclick="editProductImage(${product.id})">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="product-title">${product.name}</h5>
+                                <p class="product-price">${product.price} ฿</p>
+                                <button class="btn btn-sm btn-add-cart" 
+                                    onclick="addToCart(${product.id})"
+                                    ${product.stock === 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-plus me-1"></i> เพิ่มลงตะกร้า
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productGrid.innerHTML += productCard;
+            });
+        }
+        
+        // Render stock management table
+        function renderStockTable() {
+            const tableBody = document.getElementById('stockTableBody');
+            tableBody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = `
+                    <tr>
+                        <td>P${product.id.toString().padStart(3, '0')}</td>
+                        <td>${product.name}</td>
+                        <td><img src="${product.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                        <td>${product.category}</td>
+                        <td>${product.price}</td>
+                        <td>${product.stock}</td>
+                        <td>
+                            <button class="btn btn-sm btn-stock btn-reset" onclick="editProduct(${product.id})">
+                                <i class="fas fa-edit"></i> แก้ไข
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        // Add to cart function
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (!product || product.stock <= 0) {
+                showNotification("สินค้าหมดสต๊อกแล้ว", "danger");
+                return;
+            }
+            
+            // Check if product already in cart
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity += 1;
+                } else {
+                    showNotification("ไม่สามารถเพิ่มได้ เกินจำนวนสต๊อก", "warning");
+                    return;
+                }
+            } else {
+                cart.push({
+                    id: productId,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            showNotification(`เพิ่ม "${product.name}" ลงตะกร้าเรียบร้อย`);
+        }
+        
+        // Update cart display
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            let cartHTML = '';
+            let subtotal = 0;
+            
+            if (cart.length === 0) {
+                cartHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h5>ไม่มีสินค้าในตะกร้า</h5>
+                        <p>เพิ่มสินค้าโดยคลิกที่ปุ่ม "เพิ่มลงตะกร้า"</p>
+                    </div>
+                `;
+            } else {
+                cart.forEach(item => {
+                    const product = products.find(p => p.id === item.id);
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    cartHTML += `
+                        <div class="cart-item" id="cartItem${item.id}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">${item.name}</div>
+                                    <div class="text-muted">${item.price} ฿</div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-quantity" onclick="adjustCartItem(${item.id}, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="item-quantity mx-2">${item.quantity}</span>
+                                    <button class="btn btn-quantity" onclick="adjustCartItem(${item.id}, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button class="btn btn-remove ms-3" onclick="removeCartItem(${item.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            cartItems.innerHTML = cartHTML;
+            
+            // Calculate totals
+            const discount = 0; // You can implement discount logic here
+            const tax = subtotal * 0.07;
+            const total = subtotal - discount + tax;
+            
+            document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)} ฿`;
+            document.getElementById('discount').textContent = `${discount.toFixed(2)} ฿`;
+            document.getElementById('tax').textContent = `${tax.toFixed(2)} ฿`;
+            document.getElementById('total').textContent = `${total.toFixed(2)} ฿`;
+        }
+        
+        // Adjust cart item quantity
+        function adjustCartItem(productId, amount) {
+            const item = cart.find(item => item.id === productId);
+            const product = products.find(p => p.id === productId);
+            
+            if (item) {
+                const newQuantity = item.quantity + amount;
+                
+                if (newQuantity < 1) {
+                    removeCartItem(productId);
+                    return;
+                }
+                
+                if (newQuantity > product.stock) {
+                    showNotification("ไม่สามารถเพิ่มได้ เกินจำนวนสต๊อก", "warning");
+                    return;
+                }
+                
+                item.quantity = newQuantity;
+                updateCart();
+            }
+        }
+        
+        // Remove item from cart
+        function removeCartItem(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+            showNotification("นำสินค้าออกจากตะกร้าแล้ว", "warning");
+        }
+        
+        // Show notification
+        function showNotification(message, type = "success") {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('i');
+            const text = notification.querySelector('span');
+            
+            notification.className = "floating-notification";
+            notification.classList.add(type);
+            
+            text.textContent = message;
+            
+            if (type === "success") {
+                icon.className = "fas fa-check-circle me-2";
+            } else if (type === "warning") {
+                icon.className = "fas fa-exclamation-triangle me-2";
+            } else if (type === "danger") {
+                icon.className = "fas fa-times-circle me-2";
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Checkout button
+        document.getElementById('checkoutBtn').addEventListener('click', function() {
+            if (cart.length === 0) {
+                showNotification("กรุณาเพิ่มสินค้าในตะกร้าก่อน", "warning");
+                return;
+            }
+            
+            // Generate receipt preview
+            generateReceipt();
+            
+            // Show payment modal
+            const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+            paymentModal.show();
+        });
+        
+        // Generate receipt
+        function generateReceipt() {
+            const receipt = document.getElementById('receiptPreview');
+            let subtotal = 0;
+            let itemsHTML = '';
+            
+            // Generate items list
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                itemsHTML += `
+                    <div class="receipt-item">
+                        <div>${item.name} x ${item.quantity}</div>
+                        <div>${itemTotal.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+            
+            // Calculate totals
+            const discount = 0; // You can implement discount logic here
+            const tax = subtotal * 0.07;
+            const total = subtotal - discount + tax;
+            
+            // Get current date and time
+            const now = new Date();
+            const dateStr = `${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            // Generate receipt HTML
+            receipt.innerHTML = `
+                <div class="receipt-header">
+                    <div class="receipt-title">BLACK HOLE CAFE</div>
+                    <div>วันที่: ${dateStr}</div>
+                    <div>เลขที่: INV-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${Math.floor(Math.random()*1000).toString().padStart(3, '0')}</div>
+                </div>
+                
+                <div class="receipt-body">
+                    ${itemsHTML}
+                    
+                    <div class="receipt-item">
+                        <div>ราคารวม</div>
+                        <div>${subtotal.toFixed(2)}</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div>ส่วนลด (0%)</div>
+                        <div>-${discount.toFixed(2)}</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div>ภาษี (7%)</div>
+                        <div>${tax.toFixed(2)}</div>
+                    </div>
+                    
+                    <div class="receipt-total">
+                        <div>รวมสุทธิ</div>
+                        <div>${total.toFixed(2)}</div>
+                    </div>
+                    
+                    <div class="receipt-item mt-3">
+                        <div>เงินสด</div>
+                        <div id="cashReceivedPreview">0.00</div>
+                    </div>
+                    <div class="receipt-item">
+                        <div>เงินทอน</div>
+                        <div id="changePreview">0.00</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Update change calculation
+        document.getElementById('cashReceived').addEventListener('input', function() {
+            const cashReceived = parseFloat(this.value) || 0;
+            const total = parseFloat(document.getElementById('total').textContent.replace('฿', '').trim()) || 0;
+            
+            const change = cashReceived - total;
+            
+            document.getElementById('changeAmount').innerHTML = `${change > 0 ? change.toFixed(2) : '0.00'} ฿`;
+            
+            // Update receipt preview
+            if (document.getElementById('cashReceivedPreview')) {
+                document.getElementById('cashReceivedPreview').textContent = cashReceived.toFixed(2);
+                document.getElementById('changePreview').textContent = change > 0 ? change.toFixed(2) : '0.00';
+            }
+        });
+        
+        // Complete payment
+        document.getElementById('completePayment').addEventListener('click', function() {
+            // Update stock
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    product.stock -= item.quantity;
+                    if (product.stock < 0) product.stock = 0;
+                }
+            });
+            
+            // Clear cart
+            cart = [];
+            updateCart();
+            
+            // Update displays
+            renderProducts();
+            renderStockTable();
+            
+            // Close modal
+            const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            paymentModal.hide();
+            
+            // Show success message
+            showNotification("ชำระเงินเรียบร้อยและอัปเดตสต๊อกแล้ว!");
+        });
+        
+        // Image upload functionality
+        document.getElementById('imageUploadContainer').addEventListener('click', function() {
+            document.getElementById('imageUpload').click();
+        });
+        
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // Open cash drawer
+        document.getElementById('openDrawerBtn').addEventListener('click', function() {
+            showNotification("เปิดลิ้นชักเก็บเงินเรียบร้อยแล้ว");
+        });
+        
+        // Send report via email
+        document.getElementById('emailReportBtn').addEventListener('click', function() {
+            showNotification("ส่งรายงานการขายทางอีเมลเรียบร้อยแล้ว");
+        });
+        
+        // Add product button
+        document.getElementById('addProductBtn').addEventListener('click', function() {
+            showNotification("เปิดหน้าต่างเพิ่มสินค้าใหม่", "warning");
+        });
+        
+        // Add customer button
+        document.getElementById('addCustomerBtn').addEventListener('click', function() {
+            showNotification("เปิดหน้าต่างเพิ่มสมาชิกใหม่", "warning");
+        });
+        
+        // Add staff button
+        document.getElementById('addStaffBtn').addEventListener('click', function() {
+            showNotification("เปิดหน้าต่างเพิ่มพนักงานใหม่", "warning");
+        });
+        
+        // Edit product image
+        function editProductImage(productId) {
+            document.getElementById('imageUpload').click();
+            showNotification("แก้ไขรูปภาพสินค้า", "warning");
+        }
+        
+        // Edit product
+        function editProduct(productId) {
+            showNotification(`แก้ไขข้อมูลสินค้า ID: ${productId}`, "warning");
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to category buttons
+            document.querySelectorAll('.category-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Register link
+            document.getElementById('registerLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                showNotification("ระบบสมัครสมาชิกอยู่ในระหว่างการพัฒนา", "warning");
+            });
+        });
+    </script>
+</body>
+</html>
